@@ -94,5 +94,30 @@ export class UsersHandler {
         }
     }
 
+    async delete(req: Request, res: Response) {
+        const { user } = req.params
 
+        try {
+            const userToDelete = await userRepository.findOneBy({
+                id: Number(user)
+            })
+
+            if (!userToDelete) {
+                return res.status(404).json({
+                    message: 'user not found'
+                })
+            }
+
+            await userRepository.remove(userToDelete)
+
+            return res.status(200).json({
+                message: 'user deleted successfully'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                message: 'error deleting user'
+            })
+        }
+    }
 }
