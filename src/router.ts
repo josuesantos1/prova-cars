@@ -11,5 +11,6 @@ router.get("/", appEndpoint.home);
 router.post("/users", new UsersHandler().create);
 router.get("/users/:user", new UsersHandler().get);
 router.put("/users/:user", new UsersHandler().update);
+router.delete("/users/:user", new UsersHandler().delete);
 
 export { router };
