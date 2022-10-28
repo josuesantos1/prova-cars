@@ -10,5 +10,6 @@ router.get("/", appEndpoint.home);
 //users routes
 router.post("/users", new UsersHandler().create);
 router.get("/users/:user", new UsersHandler().get);
+router.put("/users/:user", new UsersHandler().update);
 
 export { router };
