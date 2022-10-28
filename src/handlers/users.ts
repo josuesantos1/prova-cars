@@ -8,8 +8,15 @@ export class UsersHandler {
         const { body } = req;
 
         try {
+            const exists = await userRepository.findOneBy({
+                email: body.email
+            })
 
-            // TODO: verify that not already existing
+            if (exists) {
+                return res.status(409).json({
+                    message: 'user already exists'
+                })
+            }
 
             const newUser = userRepository.create({
                                 first: body.first,
@@ -120,4 +127,5 @@ export class UsersHandler {
             })
         }
     }
+
 }
