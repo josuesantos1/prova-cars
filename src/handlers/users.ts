@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
+import { user } from "../libraries/models/user";
 import { userRepository } from "../libraries/repositories/user";
 
 export class UsersHandler {
@@ -7,6 +8,9 @@ export class UsersHandler {
         const { body } = req;
 
         try {
+
+            // TODO: verify that not already existing
+
             const newUser = userRepository.create({
                                 first: body.first,
                                 last: body.last,
@@ -23,7 +27,7 @@ export class UsersHandler {
 
         } catch (e) {
             console.log(e);
-            return res.status(400).json({
+            return res.status(500).json({
                 message: 'Error creating',
             });
         }
@@ -48,7 +52,10 @@ export class UsersHandler {
             User.password = ''
             return res.status(200).json(User)
         } catch (e) {
-
+            console.log(e)
+            return res.status(500).json({
+                message: 'error while searching'
+            })
         }
     }
 
@@ -56,6 +63,36 @@ export class UsersHandler {
         const { user } = req.params
         const { body } = req
 
+        try {
+            const userToUpdate = await userRepository.findOneBy({
+                id: Number(user)
+            }) as user
 
+            if (!userToUpdate) {
+                return res.status(404).json({
+                    message: 'user not found'
+                })
+            }
+
+            userToUpdate.email = body.email || userToUpdate.email
+            userToUpdate.password = body.password || userToUpdate.password
+            userToUpdate.first = body.first || userToUpdate.first
+            userToUpdate.last = body.last || userToUpdate.last
+
+            await userRepository.save(userToUpdate)
+            userToUpdate.password = ''
+
+            return res.status(200).json({
+                message: 'updated successfully',
+                data: userToUpdate
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                message: 'error updating'
+            })
+        }
     }
+
+
 }
