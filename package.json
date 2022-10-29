@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "main": "src/index.js",
   "license": "MIT",
+
   "scripts": {
     "dev": "nodemon",
+    "migrate:drop": "typeorm-ts-node-commonjs schema:drop --d src/data-source.ts",
     "migrate:gen": "typeorm-ts-node-commonjs -d ./src/data-source.ts migration:generate ./src/migrations/default",
     "migrate:run": "typeorm-ts-node-commonjs -d ./src/data-source.ts migration:run"
   },
