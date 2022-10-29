@@ -1,4 +1,7 @@
 import { Request, response, Response } from "express";
+import * as bcrypt from "bcrypt";
+import * as jwt from 'jsonwebtoken'
+
 import { user } from "../libraries/models/user";
 import { userRepository } from "../libraries/repositories/user";
 
@@ -22,7 +25,7 @@ export class UsersHandler {
                                 first: body.first,
                                 last: body.last,
                                 email: body.email,
-                                password: body.password
+                                password: bcrypt.hashSync(body.password, 10)
                             });
 
             await userRepository.save(newUser)
@@ -81,8 +84,10 @@ export class UsersHandler {
                 })
             }
 
+            const pass = bcrypt.hashSync(body.password, 10) || bcrypt.hashSync(userToUpdate.password, 10)
+
             userToUpdate.email = body.email || userToUpdate.email
-            userToUpdate.password = body.password || userToUpdate.password
+            userToUpdate.password = pass
             userToUpdate.first = body.first || userToUpdate.first
             userToUpdate.last = body.last || userToUpdate.last
 
@@ -128,4 +133,41 @@ export class UsersHandler {
         }
     }
 
+    async login(req: Request, res: Response) {
+        const {email, password} = req.body;
+
+        try {
+            const user = await userRepository.findOneBy({
+                email: email,
+            })
+            console.log(user)
+            if (!user) {
+                return res.status(400).json({
+                    message: 'email or password incorrect'
+                })
+            }
+
+
+            if (await bcrypt.compare(password, user.password)) {
+                const token = jwt.sign({...user}, String(process.env.APP_PASS), {
+                    expiresIn: 604800,
+                })
+
+                return res.status(200).json({
+                    ...user,
+                    token
+                })
+            }
+            console.log(user.password)
+
+            return res.status(400).json({
+                message: 'email or password incorrect'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(400).json({
+                message: 'error while login'
+            })
+        }
+    }
 }
