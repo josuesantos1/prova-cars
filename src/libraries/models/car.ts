@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, ManyToOne, JoinColumn } from "typeorm"
 import { User } from "./user";
 
 
@@ -16,8 +16,11 @@ export class Car {
     @Column()
     price: number;
 
-    // @OneToOne()
-    // owner: User;
+    @ManyToOne(() => User, user => user.cars)
+    @JoinColumn({
+        name: 'car_id'
+    })
+    owner: User;
 }
 
 
