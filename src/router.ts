@@ -14,11 +14,10 @@ router.get("/users/:user", new UsersHandler().get);
 router.put("/users/:user", new UsersHandler().update);
 router.delete("/users/:user", new UsersHandler().delete);
 
-
 //cars routes
-router.get("/cars", new CarsHandler().create);
-router.get("/cars/:user", new CarsHandler().get);
-router.put("/cars/:user", new CarsHandler().update);
-router.delete("/cars/:user", new CarsHandler().delete);
+router.post("/cars", new CarsHandler().create);
+router.get("/cars/:car", new CarsHandler().get);
+router.put("/cars/:car", new CarsHandler().update);
+router.delete("/cars/:car", new CarsHandler().delete);
 
 export { router };
