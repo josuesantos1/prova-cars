@@ -1,5 +1,14 @@
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, ManyToOne } from "typeorm"
+import * as yup from 'yup';
+
 import { Car } from "./car";
+
+export const schema = yup.object().shape({
+    first: yup.string().required(),
+    last: yup.string().required(),
+    email: yup.string().required(),
+    password: yup.string().required(),
+});
 
 export type user = {
     id: number
