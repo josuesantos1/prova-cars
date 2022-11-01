@@ -6,7 +6,7 @@ import { Car } from "./car";
 export const schema = yup.object().shape({
     first: yup.string().required(),
     last: yup.string().required(),
-    email: yup.string().required(),
+    email: yup.string().email().required(),
     password: yup.string().required(),
 });
 
