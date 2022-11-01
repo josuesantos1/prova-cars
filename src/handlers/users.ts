@@ -11,12 +11,15 @@ export class UsersHandler {
         const { body } = req;
 
         try {
+            await schema.validate(body)
+        } catch(e) {
+            console.log(e)
+            return res.status(400).json({message: e})
+        }
+
+        try {
             const exists = await userRepository.findOneBy({
                 email: body.email
-            })
-
-            await schema.validate(body).catch(e => {
-                res.status(400).json({message: e.message})
             })
 
             if (exists) {
@@ -82,10 +85,6 @@ export class UsersHandler {
             const userToUpdate = await userRepository.findOneBy({
                 email: headers.authorization
             }) as user
-
-            await schema.validate(body).catch(e => {
-                return res.status(400).json({message: e.message})
-            })
 
             if (!userToUpdate) {
                 return res.status(404).json({
