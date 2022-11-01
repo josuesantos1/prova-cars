@@ -31,9 +31,13 @@ export class UsersHandler {
 
             await userRepository.save(newUser)
 
+            const auth = new Auth()
+
+            const sign = await auth.auth(body.email, body.password);
+
             return res.status(201).json({
                 message: 'user created successfully',
-                data: newUser
+                data: sign.data
             })
 
         } catch (e) {
