@@ -1,6 +1,6 @@
 import { Request, response, Response } from "express";
 import { carRepository } from "../libraries/repositories/car";
-
+import { schema } from '../libraries/models/car'
 
 export class CarsHandler {
 
@@ -8,11 +8,22 @@ export class CarsHandler {
         const { body } = req;
 
         try {
+            await schema.validate(body)
+        } catch(e) {
+            console.log(e)
+            return res.status(400).json({message: e})
+        }
+
+        try {
+
             const newCar = carRepository.create({
                                 title: body.title,
                                 description: body.description,
                                 price: body.price,
+                                model: body.model
                             });
+
+            console.log("-=-=-=-\n\n", newCar)
 
             await carRepository.save(newCar)
 
