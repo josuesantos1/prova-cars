@@ -54,6 +54,20 @@ export class CarsHandler {
         }
     }
 
+    async listing(req: Request, res: Response) {
+        try {
+            const cars = await carRepository.find()
+
+            return res.status(200).json(cars)
+        } catch(e) {
+            console.log(e)
+            return res.status(500).json({
+                message: 'error while get all cars'
+            })
+        }
+
+    }
+
     async update(req: Request, res: Response) {
         const { car } = req.params
         const { body } = req
