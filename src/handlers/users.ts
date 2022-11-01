@@ -4,6 +4,7 @@ import * as jwt from 'jsonwebtoken'
 
 import { user } from "../libraries/models/user";
 import { userRepository } from "../libraries/repositories/user";
+import { Auth } from "../libraries/security/auth";
 
 export class UsersHandler {
 
@@ -44,13 +45,11 @@ export class UsersHandler {
     }
 
     async get(req: Request, res: Response) {
-        const { user } = req.params
-
-        console.log(user)
+        const { authorization } = req.headers;
 
         try {
             const User = await userRepository.findOneBy({
-                id: Number(user)
+                email: authorization,
             })
 
             if (!User) {
@@ -70,12 +69,11 @@ export class UsersHandler {
     }
 
     async update(req: Request, res: Response) {
-        const { user } = req.params
-        const { body } = req
+        const { body, headers } = req
 
         try {
             const userToUpdate = await userRepository.findOneBy({
-                id: Number(user)
+                email: headers.authorization
             }) as user
 
             if (!userToUpdate) {
@@ -84,7 +82,7 @@ export class UsersHandler {
                 })
             }
 
-            const pass = bcrypt.hashSync(body.password, 10) || bcrypt.hashSync(userToUpdate.password, 10)
+            const pass = bcrypt.hashSync(body.password || userToUpdate.password, 10)
 
             userToUpdate.email = body.email || userToUpdate.email
             userToUpdate.password = pass
@@ -107,11 +105,11 @@ export class UsersHandler {
     }
 
     async delete(req: Request, res: Response) {
-        const { user } = req.params
+        const { headers } = req
 
         try {
             const userToDelete = await userRepository.findOneBy({
-                id: Number(user)
+                email: headers.authorization
             })
 
             if (!userToDelete) {
@@ -136,38 +134,10 @@ export class UsersHandler {
     async login(req: Request, res: Response) {
         const {email, password} = req.body;
 
-        try {
-            const user = await userRepository.findOneBy({
-                email: email,
-            })
-            console.log(user)
-            if (!user) {
-                return res.status(400).json({
-                    message: 'email or password incorrect'
-                })
-            }
+        const auth = new Auth()
 
+        const sign = await auth.auth(email, password);
 
-            if (await bcrypt.compare(password, user.password)) {
-                const token = jwt.sign({...user}, String(process.env.APP_PASS), {
-                    expiresIn: 604800,
-                })
-
-                return res.status(200).json({
-                    ...user,
-                    token
-                })
-            }
-            console.log(user.password)
-
-            return res.status(400).json({
-                message: 'email or password incorrect'
-            })
-        } catch (e) {
-            console.log(e)
-            return res.status(400).json({
-                message: 'error while login'
-            })
-        }
+        return res.status(sign.status).json(sign.data)
     }
 }
