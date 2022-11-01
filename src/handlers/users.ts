@@ -84,7 +84,7 @@ export class UsersHandler {
             }) as user
 
             await schema.validate(body).catch(e => {
-                res.status(400).json({message: e.message})
+                return res.status(400).json({message: e.message})
             })
 
             if (!userToUpdate) {
