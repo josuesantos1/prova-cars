@@ -1,8 +1,7 @@
 import { Request, response, Response } from "express";
 import * as bcrypt from "bcrypt";
-import * as jwt from 'jsonwebtoken'
 
-import { user } from "../libraries/models/user";
+import { user, schema } from "../libraries/models/user";
 import { userRepository } from "../libraries/repositories/user";
 import { Auth } from "../libraries/security/auth";
 
@@ -14,6 +13,10 @@ export class UsersHandler {
         try {
             const exists = await userRepository.findOneBy({
                 email: body.email
+            })
+
+            await schema.validate(body).catch(e => {
+                res.status(400).json({message: e.message})
             })
 
             if (exists) {
@@ -79,6 +82,10 @@ export class UsersHandler {
             const userToUpdate = await userRepository.findOneBy({
                 email: headers.authorization
             }) as user
+
+            await schema.validate(body).catch(e => {
+                res.status(400).json({message: e.message})
+            })
 
             if (!userToUpdate) {
                 return res.status(404).json({
