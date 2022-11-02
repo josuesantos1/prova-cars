@@ -1,0 +1,29 @@
+
+version: "3"
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - prova-cars-db:/var/lib/postgresql/data
+
+  app:
+    build: .
+    env_file: .env
+    command: "npm start"
+    environment:
+      DATABASE: postgres
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_HOST: localhost
+    depends_on:
+      - postgres
+    ports:
+      - '3030:3030'
+
+volumes:
+  prova-cars-db:
